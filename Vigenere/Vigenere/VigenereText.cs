@@ -20,21 +20,55 @@ namespace Vigenere
             VigenereText vt = new VigenereText();
             if (string.IsNullOrEmpty(path) == false)
             {
-                using (var streamReader = File.OpenText(path))
+                if (File.Exists(path))
                 {
-                    var s = string.Empty;
-                    while ((s = streamReader.ReadLine()) != null)
+                    using (var streamReader = File.OpenText(path))
                     {
-                        vt.AllText.Add(s);
+                        var s = string.Empty;
+                        while ((s = streamReader.ReadLine()) != null)
+                        {
+                            vt.AllText.Add(s);
+                        }
+
                     }
-                        
+
+                }
+                else
+                {
+                    return null;
                 }
             }
-            return vt;
+            if(vt.AllText.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return vt;
+            }
         }
         public static VigenereText DecodeOrEncode(string key,VigenereText text,bool codeOrdecode)
         {
-            
+            key = key.ToLower();
+           if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+            foreach (var item in key)
+            {
+                if(item >= 'а' && item <= 'я' || item == 'ё')
+                {
+                    continue;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            if(text == null)
+            {
+                return null;
+            }
             VigenereText decodedText = new VigenereText();
             int indexKey = 0;
             int c = default(int); //Индекс символа закодированного сообщения
@@ -89,15 +123,22 @@ namespace Vigenere
     
         public static void SaveText(VigenereText text,string path)
         {
-            using(FileStream file = new FileStream(path, FileMode.Create))
+            try
             {
-                using(StreamWriter stream = new StreamWriter(file))
+                using (FileStream file = new FileStream(path, FileMode.Create))
                 {
-                    foreach (var item in text.AllText)
+                    using (StreamWriter stream = new StreamWriter(file))
                     {
-                        stream.WriteLine(item);
+                        foreach (var item in text.AllText)
+                        {
+                            stream.WriteLine(item);
+                        }
                     }
                 }
+            }
+            catch(ArgumentException)
+            {
+                MessageBox.Show("Нужно указать правильный путь");
             }
         }
     }
